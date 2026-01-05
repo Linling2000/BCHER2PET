@@ -12,9 +12,3 @@ Usage (general)
 - Install Python deps: pip install -r requirements.txt
 - For R subprojects use renv: open R in subfolder and run renv::restore() or use the provided renv.lock
 - See each subfolder for minimal README and usage examples.
-
-Data / privacy
-- Do NOT commit raw clinical data. Keep only synthetic / minimal example data in examples/.
-
-License
-- See LICENSE (MIT).
