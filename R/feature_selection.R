@@ -67,32 +67,29 @@ if (sum(valid_cols) == 0) {
 } else {
   X_lasso_df <- X_lasso_df[, valid_cols, drop = FALSE]
   y_lasso <- as.factor(as.character(train_data$HER23))
-  class_table <- table(y_lasso)
-  if (min(class_table) < 8) {
+  
+  # Removed class_table check and direct LASSO execution
+  preproc <- caret::preProcess(X_lasso_df, method = c("center", "scale"))
+  X_scaled <- predict(preproc, X_lasso_df)
+  X_matrix <- as.matrix(X_scaled)
+  set.seed(seed)
+  cv_fit <- tryCatch(
+    cv.glmnet(X_matrix, y_lasso, family = "multinomial", alpha = 1, nfolds = 5, type.multinomial = "grouped"),
+    error = function(e) e
+  )
+  if (inherits(cv_fit, "error")) {
     features_lasso_selected <- colnames(X_lasso_df)
   } else {
-    preproc <- caret::preProcess(X_lasso_df, method = c("center", "scale"))
-    X_scaled <- predict(preproc, X_lasso_df)
-    X_matrix <- as.matrix(X_scaled)
-    set.seed(seed)
-    cv_fit <- tryCatch(
-      cv.glmnet(X_matrix, y_lasso, family = "multinomial", alpha = 1, nfolds = 5, type.multinomial = "grouped"),
-      error = function(e) e
-    )
-    if (inherits(cv_fit, "error")) {
-      features_lasso_selected <- colnames(X_lasso_df)
-    } else {
-      coef_list <- coef(cv_fit, s = "lambda.min")
-      nonzero <- character(0)
-      for (cls in names(coef_list)) {
-        coefs <- as.matrix(coef_list[[cls]])
-        vars <- rownames(coefs)
-        nz_idx <- which(abs(coefs[,1]) > 0 & vars != "(Intercept)")
-        if (length(nz_idx) > 0) nonzero <- c(nonzero, vars[nz_idx])
-      }
-      features_lasso_selected <- unique(nonzero)
-      if (length(features_lasso_selected) == 0) features_lasso_selected <- colnames(X_lasso_df)
+    coef_list <- coef(cv_fit, s = "lambda.min")
+    nonzero <- character(0)
+    for (cls in names(coef_list)) {
+      coefs <- as.matrix(coef_list[[cls]])
+      vars <- rownames(coefs)
+      nz_idx <- which(abs(coefs[,1]) > 0 & vars != "(Intercept)")
+      if (length(nz_idx) > 0) nonzero <- c(nonzero, vars[nz_idx])
     }
+    features_lasso_selected <- unique(nonzero)
+    if (length(features_lasso_selected) == 0) features_lasso_selected <- colnames(X_lasso_df)
   }
 }
 
