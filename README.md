@@ -5,7 +5,7 @@ This repository contains multiple analysis pipelines:
 - python/habitat: voxel-level radiomics -> clustering -> habitat masks
 - python/comparison: Friedman-Nemenyi model comparison utilities
 - R/feature_selection: multiclass feature selection scripts
-- R/R/ternary_modeling_fig_shap.R: multiclass modeling and interpretation pipeline
+- R/ternary_modeling_fig_shap: multiclass modeling and interpretation pipeline
 
 Usage
 - Install Python deps: pip install -r requirements.txt
